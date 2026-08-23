@@ -13,12 +13,24 @@ import type { Exercise, LogEntry, PatternKey, WorkoutItem } from "@/lib/types";
 type Screen = "home" | "select" | "review" | "session" | "done";
 
 function defaultLog(ex: Exercise): LogEntry {
-  const isBW = ex.last && (ex.last.unit === "bw" || ex.last.unit === "sec" || ex.last.unit === "reps");
+  if (ex.last) {
+    const isBW = ex.last.unit === "bw" || ex.last.unit === "sec" || ex.last.unit === "reps";
+    return {
+      sets: ex.last.sets,
+      reps: ex.last.reps,
+      weight: isBW ? 0 : ex.last.weight,
+      unit: ex.last.unit,
+      done: false,
+    };
+  }
+  // No prior log yet — fall back to the exercise's own "Reps or duration" setting
+  // so a first-time timed exercise (e.g. Plank) shows a Seconds field, not Reps.
+  const timed = ex.defaultUnit === "sec";
   return {
-    sets: ex.last ? ex.last.sets : 3,
-    reps: ex.last ? ex.last.reps : 10,
-    weight: ex.last && !isBW ? ex.last.weight : 0,
-    unit: ex.last ? ex.last.unit : "lb",
+    sets: 3,
+    reps: timed ? 30 : 10,
+    weight: 0,
+    unit: timed ? "sec" : ex.bodyweight ? "bw" : "lb",
     done: false,
   };
 }

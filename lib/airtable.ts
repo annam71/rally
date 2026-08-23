@@ -30,6 +30,13 @@ function normalizeUnit(raw: unknown): Unit {
   return (UNIT_KEYS as string[]).includes(v) ? (v as Unit) : "lb";
 }
 
+// "Reps or duration" on Exercises is "Reps" / "Seconds" — used only to pick a sensible
+// default log unit the first time someone does an exercise with no prior log yet.
+function normalizeDefaultUnit(raw: unknown): "reps" | "sec" {
+  const v = String(raw ?? "").trim().toLowerCase();
+  return v === "seconds" || v === "sec" ? "sec" : "reps";
+}
+
 export async function fetchExercises(): Promise<Exercise[]> {
   const records = await exercisesTable().select({}).all();
   const out: Exercise[] = [];
@@ -44,6 +51,7 @@ export async function fetchExercises(): Promise<Exercise[]> {
       warmup: String(r.get("Warmup") ?? ""),
       notes: String(r.get("Notes") ?? ""),
       videoUrl: (r.get("Video URL") as string | undefined) || undefined,
+      defaultUnit: normalizeDefaultUnit(r.get("Reps or duration")),
       last: null,
     });
   }
@@ -87,15 +95,30 @@ export async function fetchPeople(): Promise<string[]> {
   }
 }
 
+// Find the People record for this name, or create one. Lets anyone log in by just
+// typing their name — nobody has to be pre-added to the People table.
+async function resolveOrCreatePersonId(name: string): Promise<string> {
+  const table = peopleTable();
+  const safeName = name.replace(/"/g, '\\"');
+  const matches = await table
+    .select({ filterByFormula: `{Name} = "${safeName}"`, maxRecords: 1 })
+    .all();
+  if (matches[0]) return matches[0].id;
+
+  const created = await table.create([{ fields: { Name: name } }]);
+  return created[0].id;
+}
+
 export async function createLogs(
   person: string,
   date: string,
   entries: FinishedLogEntry[]
 ): Promise<void> {
   const table = logsTable();
+  const personId = await resolveOrCreatePersonId(person);
   const rows = entries.map((e) => ({
     fields: {
-      Person: person,
+      Person: [personId],
       Exercise: [e.exerciseId],
       Date: date,
       Sets: e.sets,

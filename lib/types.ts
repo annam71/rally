@@ -17,6 +17,8 @@ export interface Exercise {
   warmup: string;
   notes: string;
   videoUrl?: string;
+  // From the "Reps or duration" field — which log unit to default to before any log exists.
+  defaultUnit: "reps" | "sec";
   last: LastLog | null;
 }
 

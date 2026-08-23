@@ -17,16 +17,17 @@ vars below if you'd rather use your own names):
 | Field | Type |
 |---|---|
 | `Name` | Single line text |
-| `Pattern` | Single select — options: `squat`, `hinge`, `push`, `pull`, `core` (lowercase) |
+| `Pattern` | Single select — options: `squat`, `hinge`, `push`, `pull`, `core` (case-insensitive) |
 | `Bodyweight` | Checkbox |
 | `Warmup` | Long text |
 | `Notes` | Long text |
 | `Video URL` | URL (optional — falls back to a YouTube search link if empty) |
+| `Reps or duration` | Single select — options: `Reps`, `Seconds` (optional; picks the default unit shown the first time you log that exercise, before any history exists) |
 
-**Logs**
+**Logs** *(leave empty — the app writes to it)*
 | Field | Type |
 |---|---|
-| `Person` | Single line text |
+| `Person` | Link to another record → *People* |
 | `Exercise` | Link to another record → *Exercises* |
 | `Date` | Date |
 | `Sets` | Number |
@@ -34,13 +35,17 @@ vars below if you'd rather use your own names):
 | `Weight` | Number |
 | `Unit` | Single select — options: `lb`, `kg`, `bw`, `sec`, `reps` |
 
-**People** *(optional — only powers the quick-pick name chips on login)*
+**People**
 | Field | Type |
 |---|---|
 | `Name` | Single line text |
 
+You don't have to pre-fill **People** — the app creates a record automatically the first time
+someone finishes a workout under a new name. Pre-adding people just gets you the quick-pick name
+chips on the login screen right away instead of after their first save.
+
 Seed the **Exercises** table with your library (the `design-reference/exercises.js` mock data is
-a good starting list to copy in). Leave **Logs** empty — the app writes to it.
+a good starting list to copy in).
 
 Then create a Personal Access Token at [airtable.com/create/tokens](https://airtable.com/create/tokens)
 scoped to `data.records:read` and `data.records:write` for this base, and grab your **Base ID**
