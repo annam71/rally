@@ -1,0 +1,222 @@
+:root {
+  --bg: oklch(0.985 0.008 78);
+  --surface: oklch(1 0.004 85);
+  --surface-2: oklch(0.975 0.01 78);
+  --ink: oklch(0.28 0.015 60);
+  --muted: oklch(0.52 0.018 62);
+  --faint: oklch(0.66 0.015 65);
+  --border: oklch(0.91 0.012 72);
+  --border-strong: oklch(0.85 0.015 70);
+  --accent: oklch(0.64 0.12 40);
+  --accent-ink: oklch(0.42 0.12 40);
+  --accent-wash: oklch(0.95 0.03 45);
+  --good: oklch(0.62 0.11 150);
+  --font-head: "Source Serif 4", Georgia, serif;
+  --font-body: "Hanken Grotesk", system-ui, sans-serif;
+  --radius: 16px;
+  --shadow: 0 1px 2px oklch(0.4 0.02 60 / 0.04), 0 8px 24px oklch(0.4 0.02 60 / 0.06);
+  --shadow-lg: 0 2px 4px oklch(0.4 0.02 60 / 0.05), 0 18px 50px oklch(0.4 0.02 60 / 0.1);
+}
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+h1,
+h2,
+h3 {
+  font-family: var(--font-head);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.12;
+  margin: 0;
+}
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+input {
+  font-family: inherit;
+}
+a {
+  color: var(--accent-ink);
+}
+::selection {
+  background: var(--accent-wash);
+}
+#root {
+  min-height: 100vh;
+}
+
+.btn {
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 17px;
+  padding: 14px 28px;
+  transition: transform 0.12s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.btn:active {
+  transform: translateY(1px) scale(0.99);
+}
+.btn:disabled {
+  cursor: not-allowed;
+}
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  box-shadow: 0 6px 16px oklch(0.64 0.12 40 / 0.28);
+}
+.btn-primary:hover {
+  filter: brightness(1.04);
+}
+.btn-ghost {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1.5px solid var(--border-strong);
+}
+.btn-ghost:hover {
+  background: var(--surface-2);
+}
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent-ink);
+  background: var(--accent-wash);
+  padding: 5px 12px;
+  border-radius: 999px;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes pop {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes fall {
+  to {
+    transform: translateY(105vh) rotate(var(--r));
+  }
+}
+.screen-enter {
+  animation: fadeUp 0.4s ease both;
+}
+
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid var(--border-strong);
+  border-radius: 12px;
+  background: var(--surface-2);
+  overflow: hidden;
+}
+.stepper input {
+  width: 100%;
+  min-width: 0;
+  text-align: center;
+  padding: 13px 4px;
+  font-size: 19px;
+  font-weight: 700;
+  border: none;
+  background: transparent;
+  color: var(--ink);
+  outline: none;
+}
+.stepper-btn {
+  width: 46px;
+  height: 50px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--accent-ink);
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s;
+}
+.stepper-btn:hover {
+  background: var(--accent-wash);
+}
+.stepper-btn:active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.ex-indent {
+  margin-left: 58px;
+}
+.input-row {
+  display: flex;
+  gap: 12px;
+}
+
+@media (max-width: 640px) {
+  body {
+    font-size: 16px;
+  }
+  .ex-indent {
+    margin-left: 0 !important;
+  }
+  .shell {
+    padding: 24px 18px 84px !important;
+  }
+  .topbar-inner {
+    padding: 13px 18px !important;
+  }
+  .stat-row {
+    flex-wrap: wrap !important;
+  }
+  .input-row {
+    flex-direction: column;
+  }
+}
