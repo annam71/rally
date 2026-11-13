@@ -2,7 +2,18 @@ import "server-only";
 import Airtable from "airtable";
 import type { Exercise, FinishedLogEntry, LastLog, PatternKey, Unit } from "./types";
 
-const PATTERN_KEYS: PatternKey[] = ["squat", "hinge", "push", "pull", "core"];
+// Maps the raw (lowercased, trimmed) Airtable "Pattern" value to our internal key.
+// "Knee PT" has a space in Airtable but PatternKey values can't, hence the alias.
+const PATTERN_ALIASES: Record<string, PatternKey> = {
+  squat: "squat",
+  hinge: "hinge",
+  push: "push",
+  pull: "pull",
+  core: "core",
+  mobility: "mobility",
+  "knee pt": "kneept",
+  kneept: "kneept",
+};
 const UNIT_KEYS: Unit[] = ["lb", "kg", "bw", "sec", "reps"];
 
 function getBase() {
@@ -22,7 +33,7 @@ const peopleTable = () => getBase()(process.env.AIRTABLE_PEOPLE_TABLE || "People
 
 function normalizePattern(raw: unknown): PatternKey | null {
   const v = String(raw ?? "").trim().toLowerCase();
-  return (PATTERN_KEYS as string[]).includes(v) ? (v as PatternKey) : null;
+  return PATTERN_ALIASES[v] ?? null;
 }
 
 function normalizeUnit(raw: unknown): Unit {

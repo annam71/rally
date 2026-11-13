@@ -2,15 +2,19 @@
 import { useEffect, useState } from "react";
 import { TopBar, Shell } from "./Shell";
 import Home from "./screens/Home";
+import About from "./screens/About";
+import CategoryScreen from "./screens/Category";
+import CountPicker from "./screens/CountPicker";
 import Select from "./screens/Select";
 import Review from "./screens/Review";
 import Session from "./screens/Session";
 import Done from "./screens/Done";
-import { PATTERNS } from "@/lib/patterns";
-import { pickExercise } from "@/lib/format";
+import { PATTERNS, isChecklistPattern, type Category } from "@/lib/patterns";
+import { pickExercise, pickChecklistExercise, pickChecklistSet } from "@/lib/format";
 import type { Exercise, LogEntry, PatternKey, WorkoutItem } from "@/lib/types";
 
-type Screen = "home" | "select" | "review" | "session" | "done";
+type Screen = "home" | "about" | "category" | "count" | "select" | "review" | "session" | "done";
+type ChecklistCategory = "mobility" | "kneept";
 
 function defaultLog(ex: Exercise): LogEntry {
   if (ex.last) {
@@ -50,9 +54,11 @@ export default function RallyApp() {
   const [people, setPeople] = useState<string[]>([]);
   const [screen, setScreen] = useState<Screen>("home");
   const [user, setUser] = useState("");
+  const [category, setCategory] = useState<Category>("strength");
   const [bwOnly, setBwOnly] = useState(false);
   const [library, setLibrary] = useState<Exercise[]>([]);
   const [workout, setWorkout] = useState<WorkoutItem[]>([]);
+  const [skipReviewScreen, setSkipReviewScreen] = useState(false);
   const [loadingLibrary, setLoadingLibrary] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -67,7 +73,10 @@ export default function RallyApp() {
   const reset = () => {
     setScreen("home");
     setUser("");
+    setCategory("strength");
+    setBwOnly(false);
     setWorkout([]);
+    setSkipReviewScreen(false);
     setError(null);
   };
 
@@ -80,7 +89,7 @@ export default function RallyApp() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to load your exercise library.");
       setLibrary(data.exercises as Exercise[]);
-      setScreen("select");
+      setScreen("category");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong loading your library.");
     } finally {
@@ -88,8 +97,16 @@ export default function RallyApp() {
     }
   };
 
+  const chooseCategory = (c: Category) => {
+    setCategory(c);
+    setBwOnly(false);
+    setSkipReviewScreen(false);
+    setScreen(c === "strength" ? "select" : "count");
+  };
+
   const generate = (patterns: PatternKey[], bw: boolean) => {
     setBwOnly(bw);
+    setSkipReviewScreen(false);
     const ordered = PATTERNS.filter((p) => patterns.includes(p.key)).map((p) => p.key);
     const items = ordered
       .map((k): WorkoutItem | null => {
@@ -101,8 +118,26 @@ export default function RallyApp() {
     setScreen("review");
   };
 
+  const generateChecklist = (count: number | "all") => {
+    const cat = category as ChecklistCategory;
+    const chosen = pickChecklistSet(library, cat, count);
+    const items: WorkoutItem[] = chosen.map((ex) => ({ pattern: cat, exercise: ex, log: null }));
+    if (cat === "mobility" && count === "all") {
+      // Fixed, deterministic list — nothing to reshuffle, so skip straight to the session.
+      setSkipReviewScreen(true);
+      setWorkout(items.map((it) => ({ ...it, log: defaultLog(it.exercise) })));
+      setScreen("session");
+    } else {
+      setSkipReviewScreen(false);
+      setWorkout(items);
+      setScreen("review");
+    }
+  };
+
   const reshuffle = (it: WorkoutItem): WorkoutItem => {
-    const ex = pickExercise(library, it.pattern, bwOnly, it.exercise.id) || it.exercise;
+    const ex = isChecklistPattern(it.pattern)
+      ? pickChecklistExercise(library, it.pattern, it.exercise.id) || it.exercise
+      : pickExercise(library, it.pattern, bwOnly, it.exercise.id) || it.exercise;
     return { ...it, exercise: ex, log: defaultLog(ex) };
   };
   const shuffleOne = (i: number) => setWorkout((w) => w.map((it, j) => (j === i ? reshuffle(it) : it)));
@@ -145,7 +180,7 @@ export default function RallyApp() {
     return <CenteredMessage>Loading your library…</CenteredMessage>;
   }
 
-  if (error && screen === "home") {
+  if (error && (screen === "home" || screen === "category")) {
     return (
       <CenteredMessage>
         <p style={{ color: "var(--accent-ink)", fontWeight: 600, marginBottom: 12 }}>{error}</p>
@@ -156,8 +191,28 @@ export default function RallyApp() {
     );
   }
 
-  if (screen === "home") return <Home people={people} onLogin={login} />;
-  if (screen === "select") return <Select user={user} onHome={reset} onGenerate={generate} />;
+  if (screen === "home") return <Home people={people} onLogin={login} onAbout={() => setScreen("about")} />;
+  if (screen === "about") return <About onBack={() => setScreen("home")} />;
+  if (screen === "category") return <CategoryScreen user={user} onHome={reset} onSelect={chooseCategory} />;
+
+  if (screen === "count") {
+    const cat = category as ChecklistCategory;
+    const poolSize = library.filter((e) => e.pattern === cat).length;
+    return (
+      <CountPicker
+        user={user}
+        category={cat}
+        poolSize={poolSize}
+        onHome={reset}
+        onBack={() => setScreen("category")}
+        onContinue={generateChecklist}
+      />
+    );
+  }
+
+  if (screen === "select")
+    return <Select user={user} onHome={reset} onBack={() => setScreen("category")} onGenerate={generate} />;
+
   if (screen === "review")
     return (
       <Review
@@ -168,9 +223,10 @@ export default function RallyApp() {
         onShuffle={shuffleOne}
         onShuffleAll={shuffleAll}
         onStart={startSession}
-        onBack={() => setScreen("select")}
+        onBack={() => setScreen(category === "strength" ? "select" : "count")}
       />
     );
+
   if (screen === "session")
     return (
       <div>
@@ -186,11 +242,12 @@ export default function RallyApp() {
           onUpdate={updateLog}
           onShuffle={shuffleOne}
           onFinish={finish}
-          onBack={() => setScreen("review")}
+          onBack={() => setScreen(skipReviewScreen ? "count" : "review")}
           finishing={finishing}
         />
       </div>
     );
+
   if (screen === "done") return <Done user={user} workout={workout} onHome={reset} />;
 
   return null;

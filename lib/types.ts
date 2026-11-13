@@ -1,4 +1,4 @@
-export type PatternKey = "squat" | "hinge" | "push" | "pull" | "core";
+export type PatternKey = "squat" | "hinge" | "push" | "pull" | "core" | "mobility" | "kneept";
 
 export type Unit = "lb" | "kg" | "bw" | "sec" | "reps";
 

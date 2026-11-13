@@ -95,20 +95,6 @@ a {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--accent-ink);
-  background: var(--accent-wash);
-  padding: 5px 12px;
-  border-radius: 999px;
-}
-
 @keyframes fadeUp {
   from {
     opacity: 0;

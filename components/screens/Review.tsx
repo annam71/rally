@@ -1,7 +1,7 @@
 "use client";
 import { TopBar, Shell } from "../Shell";
 import { PatternGlyph } from "../icons";
-import { PATTERNS } from "@/lib/patterns";
+import { PATTERN_META, isChecklistPattern } from "@/lib/patterns";
 import { formatLast } from "@/lib/format";
 import type { WorkoutItem } from "@/lib/types";
 
@@ -48,9 +48,10 @@ export default function Review({
 
         <div style={{ display: "flex", flexDirection: "column", gap: 14, marginTop: 24 }}>
           {workout.map((item, i) => {
-            const p = PATTERNS.find((x) => x.key === item.pattern)!;
+            const p = PATTERN_META[item.pattern];
+            const checklist = isChecklistPattern(item.pattern);
             return (
-              <div key={item.pattern} className="card" style={{ padding: "20px 22px", display: "flex", alignItems: "center", gap: 18 }}>
+              <div key={item.exercise.id} className="card" style={{ padding: "20px 22px", display: "flex", alignItems: "center", gap: 18 }}>
                 <div
                   style={{
                     width: 46,
@@ -70,9 +71,11 @@ export default function Review({
                     {p.label}
                   </div>
                   <div style={{ fontSize: 20, fontWeight: 600, fontFamily: "var(--font-head)" }}>{item.exercise.name}</div>
-                  <div style={{ fontSize: 14, color: "var(--muted)", marginTop: 2 }}>
-                    Last time · {formatLast(item.exercise.last)}
-                  </div>
+                  {!checklist && (
+                    <div style={{ fontSize: 14, color: "var(--muted)", marginTop: 2 }}>
+                      Last time · {formatLast(item.exercise.last)}
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={() => onShuffle(i)}

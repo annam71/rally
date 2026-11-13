@@ -5,9 +5,11 @@ import { TopBar, Shell } from "../Shell";
 export default function Home({
   people,
   onLogin,
+  onAbout,
 }: {
   people: string[];
   onLogin: (name: string) => void;
+  onAbout: () => void;
 }) {
   const [name, setName] = useState("");
   const go = () => {
@@ -18,13 +20,23 @@ export default function Home({
       <TopBar />
       <Shell>
         <div style={{ textAlign: "center", maxWidth: 540, margin: "0 auto", paddingTop: 32 }}>
-          <span className="pill">Strength, shuffled</span>
+          <span
+            style={{
+              fontSize: 13,
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              textTransform: "uppercase",
+              color: "var(--muted)",
+            }}
+          >
+            Exercise, shuffled
+          </span>
           <h1 style={{ fontSize: "clamp(34px, 8.5vw, 52px)", marginTop: 22, marginBottom: 16 }}>
-            Show up. We&apos;ll pick the workout.
+            Same five exercises again? Let&apos;s not.
           </h1>
           <p style={{ fontSize: 19, color: "var(--muted)", margin: "0 auto 36px", maxWidth: 420 }}>
-            Rally pulls from your exercise library and shuffles a balanced session — squat, hinge, push, pull,
-            core.
+            Rally shuffles your library into a fresh mix every time, so it never feels like the same workout
+            twice.
           </p>
 
           <div className="card" style={{ padding: 28, textAlign: "left", maxWidth: 420, margin: "0 auto" }}>
@@ -78,9 +90,23 @@ export default function Home({
               Let&apos;s go →
             </button>
           </div>
-          <p style={{ fontSize: 13.5, color: "var(--faint)", marginTop: 20 }}>
+          <p style={{ fontSize: 13.5, color: "var(--faint)", marginTop: 20, marginBottom: 6 }}>
             Synced with your shared library · for family &amp; friends
           </p>
+          <button
+            onClick={onAbout}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              fontSize: 13.5,
+              color: "var(--faint)",
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+          >
+            About this app
+          </button>
         </div>
       </Shell>
     </div>

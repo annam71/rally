@@ -3,6 +3,7 @@ import { useRef } from "react";
 import { TopBar, Shell } from "../Shell";
 import { PatternGlyph } from "../icons";
 import { formatLast } from "@/lib/format";
+import { isChecklistPattern } from "@/lib/patterns";
 import type { WorkoutItem } from "@/lib/types";
 
 function Confetti() {
@@ -51,7 +52,9 @@ function Stat({ n, label }: { n: number | string; label: string }) {
 }
 
 export default function Done({ user, workout, onHome }: { user: string; workout: WorkoutItem[]; onHome: () => void }) {
-  const logged = workout.filter((w) => w.log && w.log.done);
+  // Count everything that actually got saved (finish() saves every exercise with a
+  // log, not just ones toggled "done") so this summary matches what's really in Airtable.
+  const logged = workout.filter((w) => w.log);
   const totalSets = logged.reduce((s, w) => s + (Number(w.log!.sets) || 0), 0);
   const volume = logged.reduce((s, w) => {
     const weight = Number(w.log!.weight) || 0;
@@ -87,14 +90,14 @@ export default function Done({ user, workout, onHome }: { user: string; workout:
 
           <div className="stat-row" style={{ display: "flex", gap: 12, justifyContent: "center", marginBottom: 28 }}>
             <Stat n={logged.length} label="exercises" />
-            <Stat n={totalSets} label="total sets" />
+            {totalSets > 0 && <Stat n={totalSets} label="total sets" />}
             {volume > 0 && <Stat n={volume.toLocaleString()} label="lb moved" />}
           </div>
 
           <div className="card" style={{ padding: "10px 8px", textAlign: "left" }}>
             {logged.map((w, i) => (
               <div
-                key={w.pattern}
+                key={w.exercise.id}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -108,12 +111,14 @@ export default function Done({ user, workout, onHome }: { user: string; workout:
                 </div>
                 <div style={{ flex: 1, fontWeight: 600 }}>{w.exercise.name}</div>
                 <div style={{ color: "var(--muted)", fontSize: 15 }}>
-                  {formatLast({
-                    sets: Number(w.log!.sets) || 0,
-                    reps: Number(w.log!.reps) || 0,
-                    weight: Number(w.log!.weight) || 0,
-                    unit: w.log!.unit,
-                  })}
+                  {isChecklistPattern(w.pattern)
+                    ? "Done"
+                    : formatLast({
+                        sets: Number(w.log!.sets) || 0,
+                        reps: Number(w.log!.reps) || 0,
+                        weight: Number(w.log!.weight) || 0,
+                        unit: w.log!.unit,
+                      })}
                 </div>
               </div>
             ))}
@@ -122,6 +127,11 @@ export default function Done({ user, workout, onHome }: { user: string; workout:
           <button className="btn btn-primary" onClick={onHome} style={{ marginTop: 30 }}>
             Back to start
           </button>
+
+          <div style={{ marginTop: 24, fontSize: 13.5, color: "var(--faint)", display: "flex", gap: 16, justifyContent: "center" }}>
+            <a href="mailto:anna@sunshineslowdown.com?subject=Rally%20feedback">Give feedback</a>
+            <a href="mailto:anna@sunshineslowdown.com?subject=Exercise%20suggestion">Suggest an exercise</a>
+          </div>
         </div>
       </Shell>
     </div>

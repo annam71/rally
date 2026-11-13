@@ -2,8 +2,9 @@
 import { useState } from "react";
 import { TopBar, Shell } from "../Shell";
 import { PatternGlyph } from "../icons";
-import { PATTERNS } from "@/lib/patterns";
-import { formatLast, youtubeSearch } from "@/lib/format";
+import VideoModal from "../VideoModal";
+import { PATTERN_META, isChecklistPattern } from "@/lib/patterns";
+import { formatLast, youtubeEmbedUrl } from "@/lib/format";
 import type { LogEntry, WorkoutItem } from "@/lib/types";
 
 function NumberField({
@@ -44,17 +45,20 @@ function ExerciseCard({
   i,
   onUpdate,
   onShuffle,
+  onWatchDemo,
 }: {
   item: WorkoutItem;
   i: number;
   onUpdate: (i: number, log: LogEntry) => void;
   onShuffle: (i: number) => void;
+  onWatchDemo: (url: string) => void;
 }) {
   const ex = item.exercise;
   const log = item.log!;
+  const checklist = isChecklistPattern(item.pattern);
   const isBW = log.unit === "bw" || log.unit === "sec" || log.unit === "reps";
   const timed = log.unit === "sec";
-  const p = PATTERNS.find((x) => x.key === item.pattern)!;
+  const p = PATTERN_META[item.pattern];
   const [open, setOpen] = useState(false);
   const set = (field: keyof LogEntry, val: LogEntry[keyof LogEntry]) => onUpdate(i, { ...log, [field]: val });
 
@@ -110,17 +114,17 @@ function ExerciseCard({
         </div>
 
         <div className="ex-indent" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 18px", marginTop: 14 }}>
-          <a
-            href={ex.videoUrl || youtubeSearch(ex.name)}
-            target="_blank"
-            rel="noreferrer"
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 14.5, fontWeight: 600, textDecoration: "none" }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M5 3l14 9-14 9V3z" />
-            </svg>
-            Watch demo
-          </a>
+          {ex.videoUrl && (
+            <button
+              onClick={() => onWatchDemo(ex.videoUrl!)}
+              style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "none", border: "none", padding: 0, fontSize: 14.5, fontWeight: 600, color: "var(--accent-ink)" }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M5 3l14 9-14 9V3z" />
+              </svg>
+              Watch demo
+            </button>
+          )}
           <button
             onClick={() => setOpen((o) => !o)}
             style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "none", border: "none", padding: 0, fontSize: 14.5, fontWeight: 600, color: "var(--muted)" }}
@@ -138,7 +142,7 @@ function ExerciseCard({
             >
               <path d="M6 9l6 6 6-6" />
             </svg>
-            Warm-up &amp; how-to
+            Notes
           </button>
           <button
             onClick={() => onShuffle(i)}
@@ -152,40 +156,36 @@ function ExerciseCard({
         </div>
 
         {open && (
-          <div className="ex-indent" style={{ marginTop: 14, display: "flex", flexDirection: "column", gap: 10 }}>
-            <div style={{ padding: "14px 16px", borderRadius: 12, background: "var(--surface-2)", border: "1px dashed var(--border-strong)" }}>
-              <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--accent-ink)", marginBottom: 4 }}>
-                Warm-up first
-              </div>
-              <div style={{ fontSize: 15.5 }}>{ex.warmup}</div>
-            </div>
+          <div className="ex-indent" style={{ marginTop: 14 }}>
             <div style={{ padding: "14px 16px", borderRadius: 12, background: "var(--surface-2)" }}>
               <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--faint)", marginBottom: 4 }}>
-                How to do it
+                Notes
               </div>
               <div style={{ fontSize: 15.5, lineHeight: 1.55 }}>{ex.notes}</div>
             </div>
           </div>
         )}
 
-        <div className="ex-indent" style={{ marginTop: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, color: "var(--muted)", fontSize: 14.5 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="9" />
-              <path d="M12 7v5l3 2" />
-            </svg>
-            <span>
-              Last time: <strong style={{ color: "var(--ink)" }}>{formatLast(ex.last)}</strong>
-            </span>
+        {!checklist && (
+          <div className="ex-indent" style={{ marginTop: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10, color: "var(--muted)", fontSize: 14.5 }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="9" />
+                <path d="M12 7v5l3 2" />
+              </svg>
+              <span>
+                Last time: <strong style={{ color: "var(--ink)" }}>{formatLast(ex.last)}</strong>
+              </span>
+            </div>
+            <div className="input-row">
+              <NumberField label="Sets" value={log.sets} onChange={(v) => set("sets", v)} step={1} />
+              <NumberField label={timed ? "Seconds" : "Reps"} value={log.reps} onChange={(v) => set("reps", v)} step={timed ? 5 : 1} />
+              {!isBW && (
+                <NumberField label={"Weight (" + log.unit + ")"} value={log.weight} onChange={(v) => set("weight", v)} step={5} />
+              )}
+            </div>
           </div>
-          <div className="input-row">
-            <NumberField label="Sets" value={log.sets} onChange={(v) => set("sets", v)} step={1} />
-            <NumberField label={timed ? "Seconds" : "Reps"} value={log.reps} onChange={(v) => set("reps", v)} step={timed ? 5 : 1} />
-            {!isBW && (
-              <NumberField label={"Weight (" + log.unit + ")"} value={log.weight} onChange={(v) => set("weight", v)} step={5} />
-            )}
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );
@@ -210,6 +210,14 @@ export default function Session({
   onBack: () => void;
   finishing: boolean;
 }) {
+  const [demo, setDemo] = useState<{ embedUrl: string; rawUrl: string } | null>(null);
+  const openDemo = (url: string) => {
+    const embedUrl = youtubeEmbedUrl(url);
+    if (embedUrl) setDemo({ embedUrl, rawUrl: url });
+    else window.open(url, "_blank", "noopener,noreferrer");
+  };
+
+  const checklistWorkout = workout.length > 0 && isChecklistPattern(workout[0].pattern);
   const doneCount = workout.filter((w) => w.log && w.log.done).length;
   const total = workout.length;
   const pct = total ? (doneCount / total) * 100 : 0;
@@ -225,9 +233,13 @@ export default function Session({
         }
       />
       <Shell>
-        <h1 style={{ fontSize: "clamp(27px, 6.5vw, 38px)", marginBottom: 6 }}>Today&apos;s workout</h1>
+        <h1 style={{ fontSize: "clamp(27px, 6.5vw, 38px)", marginBottom: 6 }}>
+          {checklistWorkout ? "Today's checklist" : "Today's workout"}
+        </h1>
         <p style={{ fontSize: 18, color: "var(--muted)", marginTop: 0, marginBottom: 18 }}>
-          Log each set as you go — jump around however you like. Mark them done to track progress.
+          {checklistWorkout
+            ? "Jump around however you like. Mark each one off as you go."
+            : "Log each set as you go — jump around however you like. Mark them done to track progress."}
         </p>
         <div style={{ height: 6, background: "var(--border)", borderRadius: 999, overflow: "hidden", marginBottom: 24 }}>
           <div style={{ height: "100%", width: pct + "%", background: "var(--accent)", borderRadius: 999, transition: "width .35s ease" }} />
@@ -235,7 +247,7 @@ export default function Session({
 
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           {workout.map((item, i) => (
-            <ExerciseCard key={item.pattern} item={item} i={i} onUpdate={onUpdate} onShuffle={onShuffle} />
+            <ExerciseCard key={item.exercise.id} item={item} i={i} onUpdate={onUpdate} onShuffle={onShuffle} onWatchDemo={openDemo} />
           ))}
         </div>
 
@@ -251,6 +263,8 @@ export default function Session({
           )}
         </div>
       </Shell>
+
+      {demo && <VideoModal embedUrl={demo.embedUrl} rawUrl={demo.rawUrl} onClose={() => setDemo(null)} />}
     </div>
   );
 }

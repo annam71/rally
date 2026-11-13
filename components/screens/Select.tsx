@@ -8,10 +8,12 @@ import type { PatternKey } from "@/lib/types";
 export default function Select({
   user,
   onHome,
+  onBack,
   onGenerate,
 }: {
   user: string;
   onHome: () => void;
+  onBack: () => void;
   onGenerate: (patterns: PatternKey[], bwOnly: boolean) => void;
 }) {
   const [selected, setSelected] = useState<PatternKey[]>(() => PATTERNS.map((p) => p.key));
@@ -126,7 +128,10 @@ export default function Select({
           })}
         </div>
 
-        <div style={{ display: "flex", gap: 12, marginTop: 32, alignItems: "center" }}>
+        <div style={{ display: "flex", gap: 12, marginTop: 32, alignItems: "center", flexWrap: "wrap" }}>
+          <button className="btn btn-ghost" onClick={onBack}>
+            ← Back
+          </button>
           <button
             className="btn btn-primary"
             disabled={!selected.length}
