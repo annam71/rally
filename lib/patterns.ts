@@ -34,7 +34,7 @@ export const PATTERN_ICON: Record<PatternKey, string> = {
   push: "M4 12h7M11 8v8M14 6v12M17 9v6M20 11v2",
   pull: "M20 12h-7M13 8v8M10 6v12M7 9v6M4 11v2",
   core: "M5 12a7 7 0 0114 0 7 7 0 01-14 0zM12 5v14",
-  mobility: "M21 12a9 9 0 11-3-6.7M21 3v5h-5",
+  mobility: "M12 20V6M12 20L19 9M12 6A14 14 0 0119 9",
   kneept: "M12 5v14M5 12h14",
 };
 

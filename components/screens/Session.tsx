@@ -89,28 +89,6 @@ function ExerciseCard({
             </div>
             <div style={{ fontSize: 22, fontWeight: 600, fontFamily: "var(--font-head)", lineHeight: 1.1 }}>{ex.name}</div>
           </div>
-          <button
-            onClick={() => set("done", !log.done)}
-            title={log.done ? "Marked done" : "Mark done"}
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 7,
-              padding: "8px 14px 8px 11px",
-              borderRadius: 999,
-              flexShrink: 0,
-              fontWeight: 600,
-              fontSize: 14,
-              border: log.done ? "1.5px solid var(--accent)" : "1.5px solid var(--border-strong)",
-              background: log.done ? "var(--accent)" : "var(--surface)",
-              color: log.done ? "white" : "var(--muted)",
-            }}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20 6L9 17l-5-5" />
-            </svg>
-            {log.done ? "Done" : "Mark done"}
-          </button>
         </div>
 
         <div className="ex-indent" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 18px", marginTop: 14 }}>
@@ -186,6 +164,33 @@ function ExerciseCard({
             </div>
           </div>
         )}
+
+        <div
+          className="ex-indent"
+          style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "flex-end" }}
+        >
+          <button
+            onClick={() => set("done", !log.done)}
+            title={log.done ? "Marked done" : "Mark done"}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 7,
+              padding: "8px 14px 8px 11px",
+              borderRadius: 999,
+              fontWeight: 600,
+              fontSize: 14,
+              border: log.done ? "1.5px solid var(--accent)" : "1.5px solid var(--border-strong)",
+              background: log.done ? "var(--accent)" : "var(--surface)",
+              color: log.done ? "white" : "var(--muted)",
+            }}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 6L9 17l-5-5" />
+            </svg>
+            {log.done ? "Done" : "Mark done"}
+          </button>
+        </div>
       </div>
     </div>
   );

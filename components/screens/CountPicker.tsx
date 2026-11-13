@@ -65,17 +65,17 @@ export default function CountPicker({
             </div>
 
             <div style={{ display: "flex", gap: 12, marginTop: 24, flexWrap: "wrap", alignItems: "center" }}>
+              {category === "mobility" && (
+                <button className="btn btn-ghost" onClick={() => onContinue("all")}>
+                  All {poolSize} of them
+                </button>
+              )}
               <button className="btn btn-ghost" onClick={onBack}>
                 ← Back
               </button>
               <button className="btn btn-primary" onClick={() => onContinue(count)}>
                 Let&apos;s go →
               </button>
-              {category === "mobility" && (
-                <button className="btn btn-ghost" onClick={() => onContinue("all")}>
-                  All {poolSize} of them
-                </button>
-              )}
             </div>
           </>
         ) : (
