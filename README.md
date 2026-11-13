@@ -1,8 +1,8 @@
-# Rally — strength, shuffled
+# Rally — exercise, shuffled
 
-A small private web app that pulls your strength-exercise library from Airtable and shuffles a
-balanced session across five movement patterns — squat, hinge, push, pull, core. Logs what you
-do back to Airtable so "last time" is always up to date.
+A small private web app that pulls your exercise library from Airtable and shuffles a session —
+strength training (squat, hinge, push, pull, core), mobility, or knee PT. Logs what you do back
+to Airtable so "last time" is always up to date for strength exercises.
 
 This is a real Next.js (App Router) + TypeScript app, wired to Airtable through server-side API
 routes so your Airtable API key never reaches the browser. The original visual prototype (static
@@ -17,7 +17,7 @@ vars below if you'd rather use your own names):
 | Field | Type |
 |---|---|
 | `Name` | Single line text |
-| `Pattern` | Single select — options: `squat`, `hinge`, `push`, `pull`, `core` (case-insensitive) |
+| `Pattern` | Single select — options: `squat`, `hinge`, `push`, `pull`, `core`, `Mobility`, `Knee PT` (case-insensitive) |
 | `Bodyweight` | Checkbox |
 | `Warmup` | Long text |
 | `Notes` | Long text |
@@ -46,6 +46,12 @@ chips on the login screen right away instead of after their first save.
 
 Seed the **Exercises** table with your library (the `design-reference/exercises.js` mock data is
 a good starting list to copy in).
+
+**Mobility and Knee PT exercises** live in the same Exercises table, just with `Pattern` set to
+`Mobility` or `Knee PT`. They're simple "did you do it" checklists — no sets/reps/weight fields
+are shown or tracked for them. For Mobility, picking "All of them" shows every Mobility exercise
+sorted by the leading number in its name (e.g. name exercises "1. ...", "2. ...", "10. ..." — it
+sorts numerically, not alphabetically, so double digits work fine).
 
 Then create a Personal Access Token at [airtable.com/create/tokens](https://airtable.com/create/tokens)
 scoped to `data.records:read` and `data.records:write` for this base, and grab your **Base ID**
