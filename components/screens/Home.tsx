@@ -90,15 +90,13 @@ export default function Home({
               Let&apos;s go →
             </button>
           </div>
-          <p style={{ fontSize: 13.5, color: "var(--faint)", marginTop: 20, marginBottom: 6 }}>
-            Synced with your shared library · for family &amp; friends
-          </p>
           <button
             onClick={onAbout}
             style={{
               background: "none",
               border: "none",
               padding: 0,
+              marginTop: 20,
               fontSize: 13.5,
               color: "var(--faint)",
               textDecoration: "underline",

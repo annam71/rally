@@ -23,6 +23,7 @@ vars below if you'd rather use your own names):
 | `Notes` | Long text |
 | `Video URL` | URL (optional — falls back to a YouTube search link if empty) |
 | `Reps or duration` | Single select — options: `Reps`, `Seconds` (optional; picks the default unit shown the first time you log that exercise, before any history exists) |
+| `Order` | Number (optional; only used for `Mobility` rows — drives the fixed sequence, so doing "5" always starts the same routine from the top instead of a random subset) |
 
 **Logs** *(leave empty — the app writes to it)*
 | Field | Type |
@@ -49,9 +50,9 @@ a good starting list to copy in).
 
 **Mobility and Knee PT exercises** live in the same Exercises table, just with `Pattern` set to
 `Mobility` or `Knee PT`. They're simple "did you do it" checklists — no sets/reps/weight fields
-are shown or tracked for them. For Mobility, picking "All of them" shows every Mobility exercise
-sorted by the leading number in its name (e.g. name exercises "1. ...", "2. ...", "10. ..." — it
-sorts numerically, not alphabetically, so double digits work fine).
+are shown or tracked for them. Mobility is always a fixed sequence driven by the `Order` field
+(lowest first) — picking "5" always does the first 5 in order, not a random 5. Knee PT stays
+randomized.
 
 Then create a Personal Access Token at [airtable.com/create/tokens](https://airtable.com/create/tokens)
 scoped to `data.records:read` and `data.records:write` for this base, and grab your **Base ID**

@@ -58,16 +58,19 @@ export default function RallyApp() {
   const [bwOnly, setBwOnly] = useState(false);
   const [library, setLibrary] = useState<Exercise[]>([]);
   const [workout, setWorkout] = useState<WorkoutItem[]>([]);
-  const [skipReviewScreen, setSkipReviewScreen] = useState(false);
   const [loadingLibrary, setLoadingLibrary] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const refreshPeople = () => {
     fetch("/api/people")
       .then((r) => r.json())
       .then((data) => setPeople(Array.isArray(data.people) ? data.people : []))
       .catch(() => setPeople([]));
+  };
+
+  useEffect(() => {
+    refreshPeople();
   }, []);
 
   const reset = () => {
@@ -76,8 +79,10 @@ export default function RallyApp() {
     setCategory("strength");
     setBwOnly(false);
     setWorkout([]);
-    setSkipReviewScreen(false);
     setError(null);
+    // Someone may have just been auto-created in People by finishing a workout —
+    // pick that up so they show as a quick-pick chip without a full page reload.
+    refreshPeople();
   };
 
   const login = async (name: string) => {
@@ -100,13 +105,11 @@ export default function RallyApp() {
   const chooseCategory = (c: Category) => {
     setCategory(c);
     setBwOnly(false);
-    setSkipReviewScreen(false);
     setScreen(c === "strength" ? "select" : "count");
   };
 
   const generate = (patterns: PatternKey[], bw: boolean) => {
     setBwOnly(bw);
-    setSkipReviewScreen(false);
     const ordered = PATTERNS.filter((p) => patterns.includes(p.key)).map((p) => p.key);
     const items = ordered
       .map((k): WorkoutItem | null => {
@@ -118,20 +121,12 @@ export default function RallyApp() {
     setScreen("review");
   };
 
-  const generateChecklist = (count: number | "all") => {
+  const generateChecklist = (count: number) => {
     const cat = category as ChecklistCategory;
     const chosen = pickChecklistSet(library, cat, count);
     const items: WorkoutItem[] = chosen.map((ex) => ({ pattern: cat, exercise: ex, log: null }));
-    if (cat === "mobility" && count === "all") {
-      // Fixed, deterministic list — nothing to reshuffle, so skip straight to the session.
-      setSkipReviewScreen(true);
-      setWorkout(items.map((it) => ({ ...it, log: defaultLog(it.exercise) })));
-      setScreen("session");
-    } else {
-      setSkipReviewScreen(false);
-      setWorkout(items);
-      setScreen("review");
-    }
+    setWorkout(items);
+    setScreen("review");
   };
 
   const reshuffle = (it: WorkoutItem): WorkoutItem => {
@@ -242,7 +237,7 @@ export default function RallyApp() {
           onUpdate={updateLog}
           onShuffle={shuffleOne}
           onFinish={finish}
-          onBack={() => setScreen(skipReviewScreen ? "count" : "review")}
+          onBack={() => setScreen("review")}
           finishing={finishing}
         />
       </div>

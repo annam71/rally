@@ -20,7 +20,7 @@ export default function CountPicker({
   poolSize: number;
   onHome: () => void;
   onBack: () => void;
-  onContinue: (count: number | "all") => void;
+  onContinue: (count: number) => void;
 }) {
   const [count, setCount] = useState(() => Math.max(1, Math.min(5, poolSize)));
   const label = LABELS[category];
@@ -64,12 +64,7 @@ export default function CountPicker({
               </div>
             </div>
 
-            <div style={{ display: "flex", gap: 12, marginTop: 24, flexWrap: "wrap", alignItems: "center" }}>
-              {category === "mobility" && (
-                <button className="btn btn-ghost" onClick={() => onContinue("all")}>
-                  All {poolSize} of them
-                </button>
-              )}
+            <div style={{ display: "flex", gap: 12, marginTop: 24, flexWrap: "nowrap", alignItems: "center" }}>
               <button className="btn btn-ghost" onClick={onBack}>
                 ← Back
               </button>

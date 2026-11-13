@@ -52,20 +52,22 @@ export default function Review({
             const checklist = isChecklistPattern(item.pattern);
             return (
               <div key={item.exercise.id} className="card" style={{ padding: "20px 22px", display: "flex", alignItems: "center", gap: 18 }}>
-                <div
-                  style={{
-                    width: 46,
-                    height: 46,
-                    borderRadius: 12,
-                    background: "var(--accent-wash)",
-                    color: "var(--accent-ink)",
-                    display: "grid",
-                    placeItems: "center",
-                    flexShrink: 0,
-                  }}
-                >
-                  <PatternGlyph k={item.pattern} size={24} />
-                </div>
+                {!checklist && (
+                  <div
+                    style={{
+                      width: 46,
+                      height: 46,
+                      borderRadius: 12,
+                      background: "var(--accent-wash)",
+                      color: "var(--accent-ink)",
+                      display: "grid",
+                      placeItems: "center",
+                      flexShrink: 0,
+                    }}
+                  >
+                    <PatternGlyph k={item.pattern} size={24} />
+                  </div>
+                )}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12.5, fontWeight: 600, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--faint)" }}>
                     {p.label}

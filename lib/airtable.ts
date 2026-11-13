@@ -63,6 +63,7 @@ export async function fetchExercises(): Promise<Exercise[]> {
       notes: String(r.get("Notes") ?? ""),
       videoUrl: (r.get("Video URL") as string | undefined) || undefined,
       defaultUnit: normalizeDefaultUnit(r.get("Reps or duration")),
+      order: r.get("Order") != null ? Number(r.get("Order")) : null,
       last: null,
     });
   }

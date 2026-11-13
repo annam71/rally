@@ -106,9 +106,11 @@ export default function Done({ user, workout, onHome }: { user: string; workout:
                   borderBottom: i < logged.length - 1 ? "1px solid var(--border)" : "none",
                 }}
               >
-                <div style={{ color: "var(--accent)" }}>
-                  <PatternGlyph k={w.pattern} size={20} />
-                </div>
+                {!isChecklistPattern(w.pattern) && (
+                  <div style={{ color: "var(--accent)" }}>
+                    <PatternGlyph k={w.pattern} size={20} />
+                  </div>
+                )}
                 <div style={{ flex: 1, fontWeight: 600 }}>{w.exercise.name}</div>
                 <div style={{ color: "var(--muted)", fontSize: 15 }}>
                   {isChecklistPattern(w.pattern)

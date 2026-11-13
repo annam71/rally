@@ -82,28 +82,23 @@ function shuffle<T>(arr: T[]): T[] {
   return copy;
 }
 
-// Sorts by a leading number in the name (e.g. "2. Ankle circles" before "10. Calf raise"),
-// falling back to plain alphabetical when there's no leading number to compare.
-function naturalCompare(a: string, b: string): number {
-  const na = a.match(/^\s*(\d+)/);
-  const nb = b.match(/^\s*(\d+)/);
-  if (na && nb) {
-    const diff = Number(na[1]) - Number(nb[1]);
-    if (diff !== 0) return diff;
-  }
-  return a.localeCompare(b);
+// Sorts by the Airtable "Order" field (nulls last), falling back to name so the
+// order is still stable when Order is missing or tied.
+function byOrder(a: Exercise, b: Exercise): number {
+  if (a.order != null && b.order != null && a.order !== b.order) return a.order - b.order;
+  if (a.order != null && b.order == null) return -1;
+  if (a.order == null && b.order != null) return 1;
+  return a.name.localeCompare(b.name);
 }
 
-// Builds the exercise set for a checklist category (mobility/kneept): "all" returns
-// every matching exercise in numbered order, otherwise a random subset of that size.
-export function pickChecklistSet(
-  library: Exercise[],
-  pattern: PatternKey,
-  count: number | "all"
-): Exercise[] {
+// Builds the exercise set for a checklist category (mobility/kneept). Mobility is a
+// fixed sequence — always the first `count` by the Order field, never random, so
+// doing "5" always starts the same routine from the top. Knee PT stays randomized.
+export function pickChecklistSet(library: Exercise[], pattern: PatternKey, count: number): Exercise[] {
   const pool = library.filter((e) => e.pattern === pattern);
-  if (count === "all") {
-    return [...pool].sort((a, b) => naturalCompare(a.name, b.name));
+  const n = Math.max(0, Math.min(count, pool.length));
+  if (pattern === "mobility") {
+    return [...pool].sort(byOrder).slice(0, n);
   }
-  return shuffle(pool).slice(0, Math.max(0, Math.min(count, pool.length)));
+  return shuffle(pool).slice(0, n);
 }

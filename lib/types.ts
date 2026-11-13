@@ -19,6 +19,8 @@ export interface Exercise {
   videoUrl?: string;
   // From the "Reps or duration" field — which log unit to default to before any log exists.
   defaultUnit: "reps" | "sec";
+  // From the "Order" field — drives mobility's fixed sequence (first N, not random).
+  order: number | null;
   last: LastLog | null;
 }
 

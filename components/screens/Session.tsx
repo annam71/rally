@@ -69,20 +69,22 @@ function ExerciseCard({
     >
       <div style={{ padding: "20px 22px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
-          <div
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              background: "var(--accent-wash)",
-              color: "var(--accent-ink)",
-              display: "grid",
-              placeItems: "center",
-              flexShrink: 0,
-            }}
-          >
-            <PatternGlyph k={item.pattern} size={23} />
-          </div>
+          {!checklist && (
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                background: "var(--accent-wash)",
+                color: "var(--accent-ink)",
+                display: "grid",
+                placeItems: "center",
+                flexShrink: 0,
+              }}
+            >
+              <PatternGlyph k={item.pattern} size={23} />
+            </div>
+          )}
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase", color: "var(--faint)" }}>
               {p.label}
@@ -91,7 +93,7 @@ function ExerciseCard({
           </div>
         </div>
 
-        <div className="ex-indent" style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 18px", marginTop: 14 }}>
+        <div className={checklist ? "" : "ex-indent"} style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "6px 18px", marginTop: 14 }}>
           {ex.videoUrl && (
             <button
               onClick={() => onWatchDemo(ex.videoUrl!)}
@@ -134,7 +136,7 @@ function ExerciseCard({
         </div>
 
         {open && (
-          <div className="ex-indent" style={{ marginTop: 14 }}>
+          <div className={checklist ? "" : "ex-indent"} style={{ marginTop: 14 }}>
             <div style={{ padding: "14px 16px", borderRadius: 12, background: "var(--surface-2)" }}>
               <div style={{ fontSize: 11.5, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--faint)", marginBottom: 4 }}>
                 Notes
@@ -166,7 +168,7 @@ function ExerciseCard({
         )}
 
         <div
-          className="ex-indent"
+          className={checklist ? "" : "ex-indent"}
           style={{ marginTop: 18, paddingTop: 16, borderTop: "1px solid var(--border)", display: "flex", justifyContent: "flex-end" }}
         >
           <button
